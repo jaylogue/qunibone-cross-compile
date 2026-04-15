@@ -1,0 +1,8 @@
+am335x_pru_package/
+arm-toolchain/
+dl/
+libtirpc/
+old/
+output/
+pru-toolchain/
+QUniBone/
