@@ -3,7 +3,7 @@
 This project provides a top-level Makefile that can be used to cross-compile the UniBone / QBone Linux-to-PDP-11 bridge software on a modern Linux machine.
 The Makefile handles all the steps required to build the software, including downloading cross-compilation toolchains, downloading and building support libraries, cloning the QUniBone github repo and applying necessary patches.
 
-All tools and source files are downloaded and built in a local working directory, eliminating the need to install specilied software on the host system.
+All tools and source files are downloaded and built in a local working directory, eliminating the need to install specialized software on the host system.
 
 The current version of the Makefile has been tested and verified on Linux Mint 22.1 (Ubuntu 24.04) targeting the latest QUniBone source as of 2026/04/15 (commit 8de7641 on 2025/08/15).
 
