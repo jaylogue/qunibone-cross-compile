@@ -20,7 +20,7 @@ MAKE_CONFIGURATION   ?= RELEASE
 # ======================================================================
 
 ARM_TOOLCHAIN_URL    ?= https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz
-TI_PRU_TOOLCHAIN_URL ?= https://dr-download.ti.com/software-development/ide-configuration-compiler-or-debugger/MD-FaNNGkDH7s/2.3.3/ti_cgt_pru_2.3.3_linux_installer_x86.bin
+PRU_TOOLCHAIN_URL ?= https://dr-download.ti.com/software-development/ide-configuration-compiler-or-debugger/MD-FaNNGkDH7s/2.3.3/ti_cgt_pru_2.3.3_linux_installer_x86.bin
 PRU_PACKAGE_REPO_URL ?= https://github.com/beagleboard/am335x_pru_package.git
 LIBTIRPC_PACKAGE_URL ?= https://downloads.sourceforge.net/libtirpc/libtirpc-1.3.7.tar.bz2
 QUNIBONE_REPO_URL    ?= https://github.com/j-hoppe/QUniBone.git
@@ -59,9 +59,9 @@ $(ABS_DOWNLOAD_DIR) :
 
 ARM_TOOLCHAIN_PACKAGE_FILE = $(shell basename $(ARM_TOOLCHAIN_URL))
 
-.PHONY : fetch-arm-toolchain install-arm-toolchain remove-arm-toolchain
+.PHONY : download-arm-toolchain install-arm-toolchain remove-arm-toolchain
 
-fetch-arm-toolchain : $(ABS_DOWNLOAD_DIR)/$(ARM_TOOLCHAIN_PACKAGE_FILE)
+download-arm-toolchain : $(ABS_DOWNLOAD_DIR)/$(ARM_TOOLCHAIN_PACKAGE_FILE)
 
 $(ABS_DOWNLOAD_DIR)/$(ARM_TOOLCHAIN_PACKAGE_FILE) : | $(ABS_DOWNLOAD_DIR)
 	$(call LOG, "===== Fetching ARM toolchain")
@@ -85,15 +85,15 @@ remove-arm-toolchain :
 # PRU Toolchain Rules
 # ======================================================================
 
-PRU_TOOLCHAIN_PACKAGE_FILE = $(shell basename $(TI_PRU_TOOLCHAIN_URL))
+PRU_TOOLCHAIN_PACKAGE_FILE = $(shell basename $(PRU_TOOLCHAIN_URL))
 
-.PHONY : fetch-pru-toolchain install-pru-toolchain remove-pru-toolchain
+.PHONY : download-pru-toolchain install-pru-toolchain remove-pru-toolchain
 
-fetch-pru-toolchain : $(ABS_DOWNLOAD_DIR)/$(PRU_TOOLCHAIN_PACKAGE_FILE)
+download-pru-toolchain : $(ABS_DOWNLOAD_DIR)/$(PRU_TOOLCHAIN_PACKAGE_FILE)
 
 $(ABS_DOWNLOAD_DIR)/$(PRU_TOOLCHAIN_PACKAGE_FILE) : | $(ABS_DOWNLOAD_DIR)
 	$(call LOG, "===== Fetching TI PRU toolchain")
-	wget -O $(ABS_DOWNLOAD_DIR)/$(PRU_TOOLCHAIN_PACKAGE_FILE) $(TI_PRU_TOOLCHAIN_URL)
+	wget -O $(ABS_DOWNLOAD_DIR)/$(PRU_TOOLCHAIN_PACKAGE_FILE) $(PRU_TOOLCHAIN_URL)
 	chmod +x $(ABS_DOWNLOAD_DIR)/$(PRU_TOOLCHAIN_PACKAGE_FILE)
 
 install-pru-toolchain : $(ABS_BUILD_DIR)/pru-toolchain
@@ -117,9 +117,9 @@ remove-pru-toolchain :
 
 PRU_PACKET_CFLAGS   =-I$(ABS_BUILD_DIR)/am335x_pru_package/pru_sw/app_loader/include
 
-.PHONY : fetch-pru-package remove-pru-package
+.PHONY : download-pru-package remove-pru-package
 
-fetch-pru-package : $(ABS_BUILD_DIR)/am335x_pru_package
+download-pru-package : $(ABS_BUILD_DIR)/am335x_pru_package
 
 $(ABS_BUILD_DIR)/am335x_pru_package : 
 	$(call LOG, "===== Fetching AM335x PRU package")
@@ -131,7 +131,7 @@ remove-pru-package :
 
 
 # ======================================================================
-# LIBTIRPC PACKAGE RULES
+# libtirpc (Transport-Independent RPC Library) Package Rules
 # ======================================================================
 
 LIBTIRPC_PACKAGE_FILE   = $(shell basename $(LIBTIRPC_PACKAGE_URL))
@@ -139,9 +139,9 @@ LIBTIRPC_OUTPUT_DIR     = $(ABS_BUILD_DIR)/libtirpc/output
 LIBTIRPC_CFLAGS         = -I$(LIBTIRPC_OUTPUT_DIR)/include -I$(LIBTIRPC_OUTPUT_DIR)/include/tirpc
 LIBTIRPC_LDFLAGS        = -L$(LIBTIRPC_OUTPUT_DIR)/lib -ltirpc -Wl,-rpath-link,$(LIBTIRPC_OUTPUT_DIR)/lib
 
-.PHONY : fetch-libtirpc unpack-libtirpc configure-libtirpc build-libtirpc clean-libtirpc
+.PHONY : download-libtirpc unpack-libtirpc configure-libtirpc build-libtirpc clean-libtirpc
 
-fetch-libtirpc : $(ABS_DOWNLOAD_DIR)/$(LIBTIRPC_PACKAGE_FILE)
+download-libtirpc : $(ABS_DOWNLOAD_DIR)/$(LIBTIRPC_PACKAGE_FILE)
 
 $(ABS_DOWNLOAD_DIR)/$(LIBTIRPC_PACKAGE_FILE) : | $(ABS_DOWNLOAD_DIR)
 	$(call LOG, "===== Fetching libtirpc")
@@ -191,7 +191,7 @@ remove-librirpc :
 # QUniBone Source Tree Rules
 # ======================================================================
 
-fetch-qunibone : $(ABS_BUILD_DIR)/QUniBone
+clone-qunibone : $(ABS_BUILD_DIR)/QUniBone
 
 $(ABS_BUILD_DIR)/QUniBone :
 	$(call LOG, "===== Fetching QUniBone Source Tree")
@@ -206,7 +206,7 @@ $(ABS_BUILD_DIR)/QUniBone/.patched : $(wildcard patches/*.patch) | $(ABS_BUILD_D
 	done
 	touch $(ABS_BUILD_DIR)/QUniBone/.patched
 
-build-qunibone : $(ABS_BUILD_DIR)/QUniBone/.patched | install-arm-toolchain install-pru-toolchain fetch-pru-package build-libtirpc
+build-qunibone : $(ABS_BUILD_DIR)/QUniBone/.patched | install-arm-toolchain install-pru-toolchain download-pru-package build-libtirpc
 	$(call LOG, "===== Building QUniBone Source Tree")
 	PATH=$(ABS_BUILD_DIR)/arm-toolchain/bin:$$PATH \
 	QUNIBONE_DIR="$(ABS_BUILD_DIR)/QUniBone" \
