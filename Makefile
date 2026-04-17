@@ -211,7 +211,7 @@ build-qunibone : $(ABS_BUILD_DIR)/QUniBone/.patched | install-arm-toolchain inst
 	PATH=$(ABS_BUILD_DIR)/arm-toolchain/bin:$$PATH \
 	QUNIBONE_DIR="$(ABS_BUILD_DIR)/QUniBone" \
 	QUNIBONE_PLATFORM=$(QUNIBONE_PLATFORM) \
-	MAKE_CONFIGURATION=RELEASE \
+	MAKE_CONFIGURATION=$(MAKE_CONFIGURATION) \
 	MAKE_TARGET_ARCH=BBB \
 	PRU_CGT="$(ABS_BUILD_DIR)/pru-toolchain" \
 	BBB_CC="arm-none-linux-gnueabihf-gcc -mthumb-interwork -mfloat-abi=hard -mfpu=neon -march=armv7-a $(PRU_PACKET_CFLAGS) $(LIBTIRPC_CFLAGS)" \
@@ -220,17 +220,17 @@ build-qunibone : $(ABS_BUILD_DIR)/QUniBone/.patched | install-arm-toolchain inst
 
 clean-qunibone :
 	$(call LOG, "===== Cleaning QUniBone Source Tree")
-	@[ \! -d $(ABS_BUILD_DIR)/QUniBone ] || { \
+	[ \! -d $(ABS_BUILD_DIR)/QUniBone ] || { \
 		PATH=$(ABS_BUILD_DIR)/arm-toolchain/bin:$$PATH \
 		QUNIBONE_DIR="$(ABS_BUILD_DIR)/QUniBone" \
-		QUNIBONE_PLATFORM=UNIBUS \
+		QUNIBONE_PLATFORM=$(QUNIBONE_PLATFORM) \
 		QUNIBONE_PLATFORM_SUFFIX=_u \
-		MAKE_CONFIGURATION=RELEASE \
+		MAKE_CONFIGURATION=$(MAKE_CONFIGURATION) \
 		MAKE_TARGET_ARCH=BBB \
 		PRU_CGT="$(ABS_BUILD_DIR)/pru-toolchain" \
 		BBB_CC="arm-none-linux-gnueabihf-gcc -mthumb-interwork -mfloat-abi=hard -mfpu=neon -march=armv7-a $(PRU_PACKET_CFLAGS) $(LIBTIRPC_CFLAGS)" \
 		LDFLAGS="$(LIBTIRPC_LDFLAGS)" \
-		make -C $(ABS_BUILD_DIR)/QUniBone/10.03_app_demo/2_src clean \
+		make -C $(ABS_BUILD_DIR)/QUniBone/10.03_app_demo/2_src clean; \
 	}
 
 remove-qunibone :
